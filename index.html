@@ -32,7 +32,7 @@
     --primary: #fda4af;
     --primary-soft: rgba(253, 164, 175, 0.18);
     --accent: #fb7185;
-    --danger: #fecdd3;
+    --danger: #be123c;
     --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
   }
 
@@ -309,6 +309,35 @@
     display: block;
   }
 
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--field), transparent 30%);
+  }
+
+  .tab {
+    min-height: 52px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    font-size: 16px;
+  }
+
+  .tab.is-active {
+    background: var(--danger);
+    color: #ffffff;
+  }
+
+  .tab-panel[hidden] {
+    display: none;
+  }
+
   .group {
     min-width: 0;
     padding: 15px 0 0;
@@ -324,7 +353,7 @@
   .button-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     margin-top: 10px;
   }
 
@@ -344,7 +373,7 @@
     background: rgba(255, 255, 255, 0.68);
     color: var(--text);
     text-align: left;
-    flex: 1 1 150px;
+    flex: 1 1 170px;
   }
 
   [data-theme="dark"] .tool {
@@ -570,59 +599,73 @@
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </div>
 
-    <section class="toolbox" aria-label="Text tools">
+    <section class="toolbox" aria-label="Converters">
+      <div class="tabs" role="tablist" aria-label="Converter type">
+        <button class="tab is-active" type="button" id="caseTab" role="tab" aria-selected="true" aria-controls="casePanel" data-tab="case">Case Converter</button>
+        <button class="tab" type="button" id="htmlTab" role="tab" aria-selected="false" aria-controls="htmlPanel" data-tab="html">HTML Converter</button>
+      </div>
+
       <div class="tools-grid">
-      <div class="group">
-        <div class="tool-head">
-          <h2>Case Formats</h2>
-          <span class="hint">Convert</span>
+        <div class="tab-panel" id="casePanel" role="tabpanel" aria-labelledby="caseTab">
+          <div class="tool-head">
+            <h2>Case Converter</h2>
+            <span class="hint">Convert</span>
+          </div>
+          <div class="button-grid">
+            <button class="tool" type="button" data-action="upper">UPPERCASE</button>
+            <button class="tool" type="button" data-action="lower">lowercase</button>
+            <button class="tool" type="button" data-action="title">Title Case</button>
+            <button class="tool" type="button" data-action="sentence">Sentence case</button>
+            <button class="tool" type="button" data-action="camel">camelCase</button>
+            <button class="tool" type="button" data-action="pascal">PascalCase</button>
+            <button class="tool" type="button" data-action="snake">snake_case</button>
+            <button class="tool" type="button" data-action="kebab">kebab-case</button>
+            <button class="tool" type="button" data-action="constant">CONSTANT_CASE</button>
+            <button class="tool" type="button" data-action="dot">dot.case</button>
+            <button class="tool" type="button" data-action="path">path/case</button>
+            <button class="tool" type="button" data-action="alternating">aLtErNaTiNg</button>
+            <button class="tool" type="button" data-action="inverse">InVeRsE cAsE</button>
+            <button class="tool" type="button" data-action="reverse">Reverse Text</button>
+            <button class="tool" type="button" data-action="trimSpaces">Remove Extra Spaces</button>
+            <button class="tool" type="button" data-action="removeAllSpaces">Remove All Spaces</button>
+            <button class="tool" type="button" data-action="removeBreaks">Remove Line Breaks</button>
+            <button class="tool" type="button" data-action="sentenceBreaks">Sentence Lines</button>
+            <button class="tool" type="button" data-action="sortLines">Sort Lines A-Z</button>
+            <button class="tool" type="button" data-action="uniqueLines">Remove Duplicate Lines</button>
+            <button class="tool" type="button" data-action="base64Encode">Encode Base64</button>
+            <button class="tool" type="button" data-action="base64Decode">Decode Base64</button>
+          </div>
         </div>
-        <div class="button-grid">
-          <button class="tool" type="button" data-action="sentence">Sentence case</button>
-          <button class="tool" type="button" data-action="lower">lower case</button>
-          <button class="tool" type="button" data-action="upper">UPPER CASE</button>
-          <button class="tool" type="button" data-action="capitalized">Capitalized</button>
-          <button class="tool" type="button" data-action="title">Title Case</button>
-          <button class="tool" type="button" data-action="inverse">Inverse Case</button>
-          <button class="tool" type="button" data-action="alternating">Alternating</button>
-          <button class="tool" type="button" data-action="camel">camelCase</button>
-          <button class="tool" type="button" data-action="pascal">PascalCase</button>
-          <button class="tool" type="button" data-action="snake">snake_case</button>
-          <button class="tool" type="button" data-action="kebab">kebab-case</button>
-          <button class="tool" type="button" data-action="constant">CONSTANT_CASE</button>
-          <button class="tool" type="button" data-action="dot">dot.case</button>
-          <button class="tool" type="button" data-action="path">path/case</button>
-        </div>
-      </div>
 
-      <div class="group">
-        <div class="tool-head">
-          <h2>Text Tools</h2>
-          <span class="hint">Clean</span>
+        <div class="tab-panel" id="htmlPanel" role="tabpanel" aria-labelledby="htmlTab" hidden>
+          <div class="tool-head">
+            <h2>HTML Converter</h2>
+            <span class="hint">Format</span>
+          </div>
+          <div class="button-grid wide-grid">
+            <button class="tool" type="button" data-html="p">Paragraph</button>
+            <button class="tool" type="button" data-html="p-lines">Per Line</button>
+            <button class="tool" type="button" data-html="ul">Unordered List</button>
+            <button class="tool" type="button" data-html="ol">Ordered List</button>
+            <button class="tool" type="button" data-html="li">List Items</button>
+            <button class="tool" type="button" data-html="h1">Heading 1</button>
+            <button class="tool" type="button" data-html="h2">Heading 2</button>
+            <button class="tool" type="button" data-html="h3">Heading 3</button>
+            <button class="tool" type="button" data-html="blockquote">Blockquote</button>
+            <button class="tool" type="button" data-html="div">Div Tags</button>
+            <button class="tool" type="button" data-html="span">Span Tags</button>
+            <button class="tool" type="button" data-html="a">Anchor</button>
+            <button class="tool" type="button" data-html="strong">Bold</button>
+            <button class="tool" type="button" data-html="em">Italic</button>
+            <button class="tool" type="button" data-html="u">Underline</button>
+            <button class="tool" type="button" data-html="code">Code</button>
+            <button class="tool" type="button" data-html="table">Table</button>
+            <button class="tool" type="button" data-html="escape">Escape HTML</button>
+            <button class="tool" type="button" data-html="markdown">Markdown List</button>
+            <button class="tool" type="button" data-html="csv">CSV Row</button>
+          </div>
         </div>
-        <div class="button-grid">
-          <button class="tool" type="button" data-action="trimSpaces">Remove extra spaces</button>
-          <button class="tool" type="button" data-action="removeBreaks">Remove line breaks</button>
-          <button class="tool" type="button" data-action="sentenceBreaks">Sentence lines</button>
-          <button class="tool" type="button" data-action="reverse">Reverse text</button>
-          <button class="tool" type="button" data-action="sortLines">Sort lines A-Z</button>
-          <button class="tool" type="button" data-action="uniqueLines">Remove duplicate lines</button>
-        </div>
-      </div>
 
-      <div class="group">
-        <div class="tool-head">
-          <h2>Output Formats</h2>
-          <span class="hint">Format</span>
-        </div>
-        <div class="button-grid wide-grid">
-          <button class="tool" type="button" id="formatHtml">HTML paragraph</button>
-          <button class="tool" type="button" id="formatLi">HTML &lt;li&gt;</button>
-          <button class="tool" type="button" id="formatUl">HTML &lt;ul&gt;</button>
-          <button class="tool" type="button" id="formatOl">HTML &lt;ol&gt;</button>
-          <button class="tool" type="button" id="formatMarkdown">Markdown list</button>
-          <button class="tool" type="button" id="formatCsv">CSV row</button>
-        </div>
         <div class="toggle-row">
           <h3>Auto-copy after conversion</h3>
           <label class="switch" aria-label="Auto-copy after conversion">
@@ -630,8 +673,6 @@
             <span class="slider"></span>
           </label>
         </div>
-      </div>
-
       </div>
     </section>
   </section>
@@ -861,6 +902,10 @@ function removeLineBreaks(text) {
   return text.replace(/\s*\r?\n\s*/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function removeAllSpaces(text) {
+  return text.replace(/\s+/g, "");
+}
+
 function addSentenceBreaks(text) {
   return removeLineBreaks(text).replace(/([.!?])\s+/g, "$1\n").trim();
 }
@@ -893,6 +938,28 @@ function uniqueLines(text) {
       return true;
     })
     .join("\n");
+}
+
+function encodeBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+
+  bytes.forEach(byte => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary);
+}
+
+function decodeBase64(text) {
+  try {
+    const binary = atob(text.trim());
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch (error) {
+    showStatus("Invalid Base64 text.");
+    return text;
+  }
 }
 
 function escapeHtml(text) {
@@ -987,6 +1054,61 @@ function formatAsCsvRow() {
   setOutput(csv, "CSV row created.", { formatSource: text });
 }
 
+function formatPerLine(tag) {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  const html = lines.map(line => `<${tag}>${escapeHtml(line)}</${tag}>`).join("\n");
+  setOutput(html, `${tag.toUpperCase()} tags created.`, { formatSource: text });
+}
+
+function formatAnchor() {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  const html = lines.map(line => `<a href="#">${escapeHtml(line)}</a>`).join("\n");
+  setOutput(html, "Anchor tags created.", { formatSource: text });
+}
+
+function formatTable() {
+  const text = getFormatSource();
+  const rows = getCopyLines().map(line => {
+    const cells = line.split(/\t|,/).map(cell => `    <td>${escapeHtml(cell.trim())}</td>`).join("\n");
+    return `  <tr>\n${cells}\n  </tr>`;
+  });
+
+  setOutput(`<table>\n${rows.join("\n")}\n</table>`, "HTML table created.", { formatSource: text });
+}
+
+function formatEscapedHtml() {
+  const text = getFormatSource();
+  setOutput(escapeHtml(text), "HTML escaped.", { formatSource: text });
+}
+
+function runHtmlFormat(type) {
+  if (type === "p") {
+    formatAsHtml();
+  } else if (type === "p-lines") {
+    formatPerLine("p");
+  } else if (type === "li") {
+    formatAsListItems();
+  } else if (type === "ul") {
+    formatAsWrappedList("ul");
+  } else if (type === "ol") {
+    formatAsWrappedList("ol");
+  } else if (type === "a") {
+    formatAnchor();
+  } else if (type === "table") {
+    formatTable();
+  } else if (type === "escape") {
+    formatEscapedHtml();
+  } else if (type === "markdown") {
+    formatAsMarkdownList();
+  } else if (type === "csv") {
+    formatAsCsvRow();
+  } else {
+    formatPerLine(type);
+  }
+}
+
 function getTextStats(text) {
   const trimmed = text.trim();
   const words = trimmed.match(/\S+/g) || [];
@@ -1037,17 +1159,41 @@ const transforms = {
   dot: text => joinedCase(text, "."),
   path: text => joinedCase(text, "/"),
   trimSpaces: removeExtraSpaces,
+  removeAllSpaces,
   removeBreaks: removeLineBreaks,
   sentenceBreaks: addSentenceBreaks,
   reverse: reverseText,
   sortLines,
-  uniqueLines
+  uniqueLines,
+  base64Encode: encodeBase64,
+  base64Decode: decodeBase64
 };
 
 document.querySelectorAll("[data-action]").forEach(button => {
   button.addEventListener("click", () => {
     const transform = transforms[button.dataset.action];
     setOutput(transform(getActiveText()), "Text converted.");
+  });
+});
+
+document.querySelectorAll("[data-html]").forEach(button => {
+  button.addEventListener("click", () => {
+    runHtmlFormat(button.dataset.html);
+  });
+});
+
+document.querySelectorAll("[data-tab]").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.tab;
+
+    document.querySelectorAll("[data-tab]").forEach(item => {
+      const isActive = item === tab;
+      item.classList.toggle("is-active", isActive);
+      item.setAttribute("aria-selected", String(isActive));
+    });
+
+    document.getElementById("casePanel").hidden = target !== "case";
+    document.getElementById("htmlPanel").hidden = target !== "html";
   });
 });
 
@@ -1061,13 +1207,6 @@ document.getElementById("copyText").addEventListener("click", () => {
   copyValue(sourceText.value, "Copied to clipboard.");
 });
 
-document.getElementById("formatHtml").addEventListener("click", formatAsHtml);
-
-document.getElementById("formatLi").addEventListener("click", formatAsListItems);
-document.getElementById("formatUl").addEventListener("click", () => formatAsWrappedList("ul"));
-document.getElementById("formatOl").addEventListener("click", () => formatAsWrappedList("ol"));
-document.getElementById("formatMarkdown").addEventListener("click", formatAsMarkdownList);
-document.getElementById("formatCsv").addEventListener("click", formatAsCsvRow);
 document.getElementById("download").addEventListener("click", () => {
   const value = sourceText.value;
 
