@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Case Converter</title>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #fff1f2;
+    --panel: rgba(255, 255, 255, 0.88);
+    --field: #ffffff;
+    --text: #3f1d25;
+    --muted: #000000;
+    --line: rgba(127, 29, 29, 0.14);
+    --primary: #fb7185;
+    --primary-soft: rgba(251, 113, 133, 0.16);
+    --accent: #fda4af;
+    --danger: #be123c;
+    --shadow: 0 24px 70px rgba(127, 29, 29, 0.12);
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #1f1116;
+    --panel: rgba(47, 24, 31, 0.86);
+    --field: #2a151c;
+    --text: #fff1f2;
+    --muted: #e4a7b1;
+    --line: rgba(253, 164, 175, 0.18);
+    --primary: #fda4af;
+    --primary-soft: rgba(253, 164, 175, 0.18);
+    --accent: #fb7185;
+    --danger: #fecdd3;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 12% 18%, rgba(251, 113, 133, 0.20), transparent 26rem),
+      radial-gradient(circle at 86% 10%, rgba(253, 164, 175, 0.22), transparent 22rem),
+      linear-gradient(135deg, #fff7f8 0%, var(--bg) 48%, #ffe4e6 100%);
+    overflow-x: hidden;
+  }
+
+  [data-theme="dark"] body {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(251, 113, 133, 0.24), transparent 26rem),
+      radial-gradient(circle at 86% 10%, rgba(253, 164, 175, 0.16), transparent 22rem),
+      linear-gradient(135deg, #12080c 0%, var(--bg) 54%, #2a121a 100%);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(22, 32, 51, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22, 32, 51, 0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent 78%);
+    animation: drift 18s linear infinite;
+  }
+
+  [data-theme="dark"] body::before {
+    background-image:
+      linear-gradient(rgba(226, 232, 240, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(226, 232, 240, 0.055) 1px, transparent 1px);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.82), transparent 78%);
+  }
+
+  @keyframes drift {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 44px 44px, 44px 44px; }
+  }
+
+  .app {
+    position: relative;
+    width: min(1240px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 34px 0;
+  }
+
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent), transparent 86%);
+  }
+
+  h1 {
+    max-width: 860px;
+    margin: 0;
+    font-size: clamp(2rem, 6vw, 4.2rem);
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  .top-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  button,
+  .file-button {
+    min-height: 40px;
+    border: 0;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+  }
+
+  button:hover,
+  .file-button:hover {
+    transform: translateY(-2px);
+  }
+
+  button:active,
+  .file-button:active {
+    transform: translateY(0);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .primary,
+  .ghost,
+  .file-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 13px;
+  }
+
+  .primary {
+    background: #132238;
+    color: #fff;
+    box-shadow: 0 12px 22px rgba(19, 34, 56, 0.18);
+  }
+
+  .primary.accent {
+    background: var(--accent);
+    color: #000000;
+  }
+
+  [data-theme="dark"] .primary.accent {
+    color: #03201c;
+  }
+
+  .ghost,
+  .file-button {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--text);
+  }
+
+  [data-theme="dark"] .ghost,
+  [data-theme="dark"] .file-button {
+    background: rgba(15, 23, 42, 0.72);
+  }
+
+  .theme-icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--text);
+    color: var(--field);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .panel,
+  .toolbox {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .panel {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .panel-head,
+  .tool-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  h2,
+  h3 {
+    margin: 0;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    font-size: 17px;
+  }
+
+  h3 {
+    font-size: 14px;
+  }
+
+  .hint {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 200px;
+    max-height: none;
+    resize: vertical;
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, var(--primary), transparent 78%);
+    border-radius: 14px;
+    outline: none;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--field), transparent 5%), color-mix(in srgb, var(--field), transparent 12%));
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.58;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  textarea:focus {
+    border-color: color-mix(in srgb, var(--primary), transparent 30%);
+    box-shadow: 0 0 0 5px var(--primary-soft);
+  }
+
+  textarea[readonly] {
+    cursor: default;
+  }
+
+  .output-flash {
+    animation: pulse 420ms ease;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 var(--primary-soft); }
+    60% { box-shadow: 0 0 0 9px var(--primary-soft); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  .toolbox {
+    padding: 14px;
+  }
+
+  .tools-grid {
+    display: block;
+  }
+
+  .group {
+    min-width: 0;
+    padding: 15px 0 0;
+    margin-top: 15px;
+    border-top: 1px solid var(--line);
+  }
+
+  .group:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .button-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .wide-grid {
+    align-items: stretch;
+  }
+
+  .tool {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 44px;
+    padding: 0 11px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--primary), transparent 86%);
+    background: rgba(255, 255, 255, 0.68);
+    color: var(--text);
+    text-align: left;
+    flex: 1 1 150px;
+  }
+
+  [data-theme="dark"] .tool {
+    background: rgba(15, 23, 42, 0.72);
+  }
+
+  .tool::after {
+    content: "";
+    position: absolute;
+    inset: auto 10px 7px 10px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0;
+    transform: scaleX(0.45);
+    transform-origin: left;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  .tool:hover,
+  .tool:focus-visible {
+    background: var(--field);
+    border-color: color-mix(in srgb, var(--primary), transparent 55%);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
+  }
+
+  [data-theme="dark"] .tool:hover,
+  [data-theme="dark"] .tool:focus-visible {
+    background: rgba(30, 41, 59, 0.92);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+  }
+
+  .tool:hover::after,
+  .tool:focus-visible::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--field), transparent 24%);
+  }
+
+  .switch {
+    position: relative;
+    flex: 0 0 auto;
+    width: 50px;
+    height: 28px;
+  }
+
+  .switch input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted), transparent 55%);
+    transition: background 160ms ease;
+  }
+
+  .slider::before {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+    transition: transform 160ms ease;
+  }
+
+  .switch input:checked + .slider {
+    background: var(--accent);
+  }
+
+  .switch input:checked + .slider::before {
+    transform: translateX(22px);
+  }
+
+  .mini-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .mini-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--field), transparent 24%);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .mini-stat b {
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .status {
+    min-height: 23px;
+    margin: 11px 2px 0;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 800;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .status.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .danger {
+    color: var(--danger);
+  }
+
+  @media (max-width: 760px) {
+    .app {
+      width: min(100% - 22px, 680px);
+      padding: 24px 0;
+    }
+
+    .top,
+    .workspace {
+      grid-template-columns: 1fr;
+    }
+
+    .top-actions {
+      justify-content: flex-start;
+    }
+
+  }
+
+  @media (max-width: 520px) {
+    .top-actions,
+    .panel-head {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .primary,
+    .ghost,
+    .file-button,
+    .tool {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main class="app">
+  <section class="top">
+    <div>
+      <p class="eyebrow">Text toolkit</p>
+      <h1>Advanced Text Case Converter</h1>
+    </div>
+
+    <div class="top-actions">
+      <button class="ghost" type="button" id="themeToggle" aria-label="Switch to dark mode" aria-pressed="false">
+        <span class="theme-icon" id="themeIcon" aria-hidden="true">D</span>
+        <span id="themeLabel">Dark mode</span>
+      </button>
+      <button class="ghost" type="button" id="undo" disabled>Undo</button>
+      <button class="ghost danger" type="button" id="clear">Clear</button>
+    </div>
+  </section>
+
+  <section class="layout" aria-label="Case converter">
+    <div>
+      <div class="workspace">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Text</h2>
+            <div class="top-actions">
+              <label class="file-button" for="fileInput">Upload .txt</label>
+              <input id="fileInput" type="file" accept=".txt,text/plain">
+              <button class="primary" type="button" id="copyText">Copy</button>
+              <button class="primary accent" type="button" id="download">Download</button>
+            </div>
+          </div>
+          <textarea id="sourceText" placeholder="Paste your text here..." spellcheck="true"></textarea>
+          <div class="mini-stats" id="sourceStats" aria-live="polite"></div>
+        </section>
+      </div>
+
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    <section class="toolbox" aria-label="Text tools">
+      <div class="tools-grid">
+      <div class="group">
+        <div class="tool-head">
+          <h2>Case Formats</h2>
+          <span class="hint">Convert</span>
+        </div>
+        <div class="button-grid">
+          <button class="tool" type="button" data-action="sentence">Sentence case</button>
+          <button class="tool" type="button" data-action="lower">lower case</button>
+          <button class="tool" type="button" data-action="upper">UPPER CASE</button>
+          <button class="tool" type="button" data-action="capitalized">Capitalized</button>
+          <button class="tool" type="button" data-action="title">Title Case</button>
+          <button class="tool" type="button" data-action="inverse">Inverse Case</button>
+          <button class="tool" type="button" data-action="alternating">Alternating</button>
+          <button class="tool" type="button" data-action="camel">camelCase</button>
+          <button class="tool" type="button" data-action="pascal">PascalCase</button>
+          <button class="tool" type="button" data-action="snake">snake_case</button>
+          <button class="tool" type="button" data-action="kebab">kebab-case</button>
+          <button class="tool" type="button" data-action="constant">CONSTANT_CASE</button>
+          <button class="tool" type="button" data-action="dot">dot.case</button>
+          <button class="tool" type="button" data-action="path">path/case</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="tool-head">
+          <h2>Text Tools</h2>
+          <span class="hint">Clean</span>
+        </div>
+        <div class="button-grid">
+          <button class="tool" type="button" data-action="trimSpaces">Remove extra spaces</button>
+          <button class="tool" type="button" data-action="removeBreaks">Remove line breaks</button>
+          <button class="tool" type="button" data-action="sentenceBreaks">Sentence lines</button>
+          <button class="tool" type="button" data-action="reverse">Reverse text</button>
+          <button class="tool" type="button" data-action="sortLines">Sort lines A-Z</button>
+          <button class="tool" type="button" data-action="uniqueLines">Remove duplicate lines</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="tool-head">
+          <h2>Output Formats</h2>
+          <span class="hint">Format</span>
+        </div>
+        <div class="button-grid wide-grid">
+          <button class="tool" type="button" id="formatHtml">HTML paragraph</button>
+          <button class="tool" type="button" id="formatLi">HTML &lt;li&gt;</button>
+          <button class="tool" type="button" id="formatUl">HTML &lt;ul&gt;</button>
+          <button class="tool" type="button" id="formatOl">HTML &lt;ol&gt;</button>
+          <button class="tool" type="button" id="formatMarkdown">Markdown list</button>
+          <button class="tool" type="button" id="formatCsv">CSV row</button>
+        </div>
+        <div class="toggle-row">
+          <h3>Auto-copy after conversion</h3>
+          <label class="switch" aria-label="Auto-copy after conversion">
+            <input type="checkbox" id="autoCopy">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+const sourceText = document.getElementById("sourceText");
+const statusEl = document.getElementById("status");
+const themeToggle = document.getElementById("themeToggle");
+const themeIcon = document.getElementById("themeIcon");
+const themeLabel = document.getElementById("themeLabel");
+const undoButton = document.getElementById("undo");
+const autoCopy = document.getElementById("autoCopy");
+const sourceStats = document.getElementById("sourceStats");
+let statusTimer;
+let previousState = null;
+let lastFormatSource = "";
+let lastFormattedValue = "";
+
+const smallTitleWords = new Set([
+  "a", "an", "and", "as", "at", "but", "by", "for", "in", "nor",
+  "of", "on", "or", "per", "the", "to", "vs", "via", "with"
+]);
+
+function getPreferredTheme() {
+  const savedTheme = localStorage.getItem("caseConverterTheme");
+
+  if (savedTheme === "dark" || savedTheme === "light") {
+    return savedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const isDark = theme === "dark";
+  themeIcon.textContent = isDark ? "L" : "D";
+  themeLabel.textContent = isDark ? "Light mode" : "Dark mode";
+  themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+}
+
+function showStatus(message) {
+  clearTimeout(statusTimer);
+  statusEl.textContent = message;
+  statusEl.classList.add("show");
+
+  statusTimer = setTimeout(() => {
+    statusEl.classList.remove("show");
+  }, 1900);
+}
+
+function getActiveText() {
+  return sourceText.value;
+}
+
+function rememberState() {
+  previousState = sourceText.value;
+  undoButton.disabled = false;
+}
+
+function flashOutput() {
+  sourceText.classList.remove("output-flash");
+  void sourceText.offsetWidth;
+  sourceText.classList.add("output-flash");
+}
+
+async function copyValue(value, message) {
+  if (!value) {
+    showStatus("Nothing to copy yet.");
+    return false;
+  }
+
+  try {
+    await navigator.clipboard.writeText(value);
+  } catch (error) {
+    const helper = document.createElement("textarea");
+    const active = document.activeElement;
+    helper.value = value;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.left = "-9999px";
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand("copy");
+    helper.remove();
+
+    if (active && typeof active.focus === "function") {
+      active.focus();
+    }
+  }
+
+  showStatus(message);
+  return true;
+}
+
+function getFormatSource() {
+  if (lastFormattedValue && sourceText.value === lastFormattedValue) {
+    return lastFormatSource;
+  }
+
+  return extractFormatSource(sourceText.value);
+}
+
+async function setOutput(value, message, options = {}) {
+  rememberState();
+  sourceText.value = value;
+
+  if (options.formatSource !== undefined) {
+    lastFormatSource = options.formatSource;
+    lastFormattedValue = value;
+  } else {
+    lastFormatSource = "";
+    lastFormattedValue = "";
+  }
+
+  updateStats();
+  flashOutput();
+
+  if (autoCopy.checked && value) {
+    await copyValue(value, "Converted and copied.");
+    return;
+  }
+
+  showStatus(message);
+}
+
+function wordsFromText(text) {
+  return text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .match(/[a-zA-Z0-9]+/g) || [];
+}
+
+function sentenceCase(text) {
+  return text
+    .toLowerCase()
+    .replace(/(^\s*[a-z])|([.!?]\s+[a-z])/g, match => match.toUpperCase());
+}
+
+function capitalizeWords(text) {
+  return text.toLowerCase().replace(/\b[\p{L}\p{N}'-]+/gu, word => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+}
+
+function titleCase(text) {
+  return text.toLowerCase().replace(/\b[\p{L}\p{N}'-]+/gu, (word, index) => {
+    if (index > 0 && smallTitleWords.has(word)) {
+      return word;
+    }
+
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+}
+
+function alternatingCase(text) {
+  let result = "";
+  let letterIndex = 0;
+
+  for (const char of text) {
+    if (char.toLowerCase() === char.toUpperCase()) {
+      result += char;
+      continue;
+    }
+
+    result += letterIndex % 2 === 0 ? char.toLowerCase() : char.toUpperCase();
+    letterIndex++;
+  }
+
+  return result;
+}
+
+function inverseCase(text) {
+  let result = "";
+
+  for (const char of text) {
+    if (char.toLowerCase() === char.toUpperCase()) {
+      result += char;
+    } else if (char === char.toUpperCase()) {
+      result += char.toLowerCase();
+    } else {
+      result += char.toUpperCase();
+    }
+  }
+
+  return result;
+}
+
+function toWords(text) {
+  return wordsFromText(text).map(word => word.toLowerCase());
+}
+
+function camelCase(text) {
+  const words = toWords(text);
+  return words.map((word, index) => {
+    if (index === 0) {
+      return word;
+    }
+
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join("");
+}
+
+function pascalCase(text) {
+  return toWords(text)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+function joinedCase(text, separator, upper = false) {
+  const value = toWords(text).join(separator);
+  return upper ? value.toUpperCase() : value;
+}
+
+function removeExtraSpaces(text) {
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim().replace(/[^\S\r\n]+/g, " "))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function removeLineBreaks(text) {
+  return text.replace(/\s*\r?\n\s*/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function addSentenceBreaks(text) {
+  return removeLineBreaks(text).replace(/([.!?])\s+/g, "$1\n").trim();
+}
+
+function reverseText(text) {
+  return Array.from(text).reverse().join("");
+}
+
+function sortLines(text) {
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b))
+    .join("\n");
+}
+
+function uniqueLines(text) {
+  const seen = new Set();
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => {
+      const key = line.toLowerCase();
+      if (!line || seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .join("\n");
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function decodeHtml(text) {
+  const helper = document.createElement("textarea");
+  let decoded = text;
+
+  for (let i = 0; i < 3; i++) {
+    helper.innerHTML = decoded;
+
+    if (helper.value === decoded) {
+      break;
+    }
+
+    decoded = helper.value;
+  }
+
+  return decoded;
+}
+
+function stripHtmlTags(text) {
+  return decodeHtml(text)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>\s*<p[^>]*>/gi, "\n")
+    .replace(/<\/?(ul|ol|p)[^>]*>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+}
+
+function extractFormatSource(text) {
+  const decoded = decodeHtml(text);
+  const listItems = [...decoded.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
+    .map(match => stripHtmlTags(match[1]))
+    .filter(Boolean);
+
+  if (listItems.length) {
+    return listItems.join("\n");
+  }
+
+  if (/<\/?(ul|ol|li|p|br)\b/i.test(decoded)) {
+    return stripHtmlTags(decoded);
+  }
+
+  return text;
+}
+
+function formatAsHtml() {
+  const text = getFormatSource();
+  const html = `<p>${escapeHtml(text).replace(/\r?\n/g, "<br>")}</p>`;
+  setOutput(html, "HTML paragraph created.", { formatSource: text });
+}
+
+function getCopyLines() {
+  return getFormatSource()
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+}
+
+function formatAsListItems() {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  const html = lines.map(line => `<li>${escapeHtml(line)}</li>`).join("\n");
+  setOutput(html, "HTML list items created.", { formatSource: text });
+}
+
+function formatAsWrappedList(tag) {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  const items = lines.map(line => `  <li>${escapeHtml(line)}</li>`).join("\n");
+  setOutput(`<${tag}>\n${items}\n</${tag}>`, `${tag.toUpperCase()} list created.`, { formatSource: text });
+}
+
+function formatAsMarkdownList() {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  setOutput(lines.map(line => `- ${line}`).join("\n"), "Markdown list created.", { formatSource: text });
+}
+
+function formatAsCsvRow() {
+  const text = getFormatSource();
+  const lines = getCopyLines();
+  const csv = lines.map(line => `"${line.replace(/"/g, '""')}"`).join(",");
+  setOutput(csv, "CSV row created.", { formatSource: text });
+}
+
+function getTextStats(text) {
+  const trimmed = text.trim();
+  const words = trimmed.match(/\S+/g) || [];
+  const lines = trimmed ? text.split(/\r?\n/).length : 0;
+  const sentences = trimmed.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  const paragraphs = trimmed ? trimmed.split(/\n\s*\n/).filter(Boolean).length : 0;
+
+  return {
+    words: words.length,
+    chars: text.length,
+    lines,
+    sentences: trimmed ? sentences.length : 0,
+    paragraphs
+  };
+}
+
+function renderStats(container, stats) {
+  const items = [
+    ["Words", stats.words],
+    ["Chars", stats.chars],
+    ["Lines", stats.lines],
+    ["Sentences", stats.sentences],
+    ["Paragraphs", stats.paragraphs]
+  ];
+
+  container.innerHTML = items
+    .map(([label, value]) => `<span class="mini-stat">${label}: <b>${escapeHtml(String(value))}</b></span>`)
+    .join("");
+}
+
+function updateStats() {
+  renderStats(sourceStats, getTextStats(sourceText.value));
+}
+
+const transforms = {
+  sentence: sentenceCase,
+  lower: text => text.toLowerCase(),
+  upper: text => text.toUpperCase(),
+  capitalized: capitalizeWords,
+  title: titleCase,
+  inverse: inverseCase,
+  alternating: alternatingCase,
+  camel: camelCase,
+  pascal: pascalCase,
+  snake: text => joinedCase(text, "_"),
+  kebab: text => joinedCase(text, "-"),
+  constant: text => joinedCase(text, "_", true),
+  dot: text => joinedCase(text, "."),
+  path: text => joinedCase(text, "/"),
+  trimSpaces: removeExtraSpaces,
+  removeBreaks: removeLineBreaks,
+  sentenceBreaks: addSentenceBreaks,
+  reverse: reverseText,
+  sortLines,
+  uniqueLines
+};
+
+document.querySelectorAll("[data-action]").forEach(button => {
+  button.addEventListener("click", () => {
+    const transform = transforms[button.dataset.action];
+    setOutput(transform(getActiveText()), "Text converted.");
+  });
+});
+
+sourceText.addEventListener("input", () => {
+  lastFormatSource = "";
+  lastFormattedValue = "";
+  updateStats();
+});
+
+document.getElementById("copyText").addEventListener("click", () => {
+  copyValue(sourceText.value, "Copied to clipboard.");
+});
+
+document.getElementById("formatHtml").addEventListener("click", formatAsHtml);
+
+document.getElementById("formatLi").addEventListener("click", formatAsListItems);
+document.getElementById("formatUl").addEventListener("click", () => formatAsWrappedList("ul"));
+document.getElementById("formatOl").addEventListener("click", () => formatAsWrappedList("ol"));
+document.getElementById("formatMarkdown").addEventListener("click", formatAsMarkdownList);
+document.getElementById("formatCsv").addEventListener("click", formatAsCsvRow);
+document.getElementById("download").addEventListener("click", () => {
+  const value = sourceText.value;
+
+  if (!value) {
+    showStatus("Nothing to download yet.");
+    return;
+  }
+
+  const blob = new Blob([value], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "converted-text.txt";
+  document.body.appendChild(link);
+  link.click();
+  const objectUrl = link.href;
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  showStatus("Download started.");
+});
+
+document.getElementById("fileInput").addEventListener("change", event => {
+  const file = event.target.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    rememberState();
+    sourceText.value = reader.result;
+    lastFormatSource = "";
+    lastFormattedValue = "";
+    updateStats();
+    showStatus(`Loaded ${file.name}.`);
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  rememberState();
+  sourceText.value = "";
+  lastFormatSource = "";
+  lastFormattedValue = "";
+  updateStats();
+  showStatus("Text cleared.");
+});
+
+undoButton.addEventListener("click", () => {
+  if (!previousState) {
+    return;
+  }
+
+  sourceText.value = previousState;
+  previousState = null;
+  lastFormatSource = "";
+  lastFormattedValue = "";
+  undoButton.disabled = true;
+  updateStats();
+  showStatus("Undo restored.");
+});
+
+themeToggle.addEventListener("click", () => {
+  const currentTheme = document.documentElement.dataset.theme || "light";
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  localStorage.setItem("caseConverterTheme", nextTheme);
+  applyTheme(nextTheme);
+  showStatus(`${nextTheme.charAt(0).toUpperCase() + nextTheme.slice(1)} mode enabled.`);
+});
+
+document.addEventListener("keydown", event => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    event.preventDefault();
+    undoButton.click();
+  }
+});
+
+applyTheme(getPreferredTheme());
+updateStats();
+</script>
+</body>
+</html>
